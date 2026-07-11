@@ -13,7 +13,7 @@ class Model:
         self._nodes = []
         self._idMap = {}
         self._valori = {}
-        self._valoriNull = {}
+
 
     def getNodes(self):
         return self._grafo.nodes()
@@ -36,9 +36,7 @@ class Model:
         for v in DAO.getPeso(ai,af):
             self._valori[v[0]] = v[1]
 
-        self._valoriNull.clear()
-        for v in DAO.getPesoNull(ai, af):
-            self._valoriNull[v[0]] = v[1]
+
         # {idNodo: valore}
 
         #modo2
@@ -56,9 +54,9 @@ class Model:
             for y in DAO.getValoriNodo(c.constructorId,ai,af):
                 for p in DAO.getValoriNodo2(c.constructorId,y):
                     c.results.setdefault(y,[]).append(p)
+                for p2 in DAO.getValoriNodo2Null(c.constructorId,y):
+                    c.resultsNull.setdefault(y, []).append(p2)
 
-
-        # ARCHI
         self.addEdgesPesati(ai,af)
 
     def addEdgesPesati(self, ai,af):  # archi PESATI

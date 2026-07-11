@@ -99,6 +99,27 @@ class DAO():
         return result
 
     @staticmethod
+    def getValoriNodo2Null(a, c):
+        conn = DBConnect.get_connection()
+
+        result = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """select distinct r2.raceId, r2.driverId, r2.position 
+                        from races r, results r2 
+                        where r.raceId = r2.raceId
+                        and r.year = %s
+                        and r2.constructorId = %s
+                        """  # <-- ADATTA: valore aggregato per singolo nodo
+        cursor.execute(query, (a, c))
+
+        for row in cursor:
+            result.append(Piazzamento(**row))
+        cursor.close()
+        conn.close()
+        return result
+
+    @staticmethod
     def getPeso(ai,af):
         conn = DBConnect.get_connection()
 
@@ -119,25 +140,7 @@ class DAO():
         conn.close()
         return result
 
-    @staticmethod
-    def getPesoNull(ai, af):
-        conn = DBConnect.get_connection()
 
-        result = []
-
-        cursor = conn.cursor(dictionary=True)
-        query = """select r.constructorId as idc, count(*) as peso
-                        from results r, races ra
-                        where r.raceId = ra.raceId
-                        and ra.year between %s and %s
-                        group by r.constructorId"""  # <-- ADATTA: valore aggregato per singolo nodo
-        cursor.execute(query, (ai, af))
-
-        for row in cursor:
-            result.append((row["idc"], row["peso"]))
-        cursor.close()
-        conn.close()
-        return result
 
     @staticmethod
     def getAllEdges(ai,af):  # <-- ADATTA parametri
