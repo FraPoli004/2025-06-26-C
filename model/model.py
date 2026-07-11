@@ -13,6 +13,7 @@ class Model:
         self._nodes = []
         self._idMap = {}
         self._valori = {}
+        self._valoriNull = {}
 
 
     def getNodes(self):
@@ -35,6 +36,10 @@ class Model:
         self._valori.clear()
         for v in DAO.getPeso(ai,af):
             self._valori[v[0]] = v[1]
+
+        self._valoriNull.clear()
+        for v in DAO.getPesoNull(ai, af):
+            self._valoriNull[v[0]] = v[1]
 
 
         # {idNodo: valore}
@@ -106,7 +111,10 @@ class Model:
     def _getScoreSoluzione(self, listaElems):
         score = 0
         for e in listaElems:
-            score+= 1-(len(e.results.values())/len(e.resultsNull.values()))
+            nP = self._valori.get(e.constructorId, 0)  # arrivi (position not null)
+            nPtot = self._valoriNull.get(e.constructorId, 0)  # partecipazioni totali
+            if nPtot > 0:  # guardia anti divisione per zero
+                score += 1 - nP / nPtot
         return score
 
 
