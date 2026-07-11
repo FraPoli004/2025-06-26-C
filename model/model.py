@@ -57,9 +57,9 @@ class Model:
 
         for c in self.getNodes():
             for y in DAO.getValoriNodo(c.constructorId,ai,af):
-                for p in DAO.getValoriNodo2(c.constructorId,y):
+                for p in DAO.getValoriNodo2(y,c.constructorId):
                     c.results.setdefault(y,[]).append(p)
-                for p2 in DAO.getValoriNodo2Null(c.constructorId,y):
+                for p2 in DAO.getValoriNodo2Null(y,c.constructorId):
                     c.resultsNull.setdefault(y, []).append(p2)
 
         self.addEdgesPesati(ai,af)
