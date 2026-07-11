@@ -26,10 +26,15 @@ class Model:
         self._grafo.clear()
         self._idMap.clear()
 
-
+        #modo1
         self._valori.clear()
-        for v in DAO.getPeso():
+        for v in DAO.getPeso(ai,af):
             self._valori[v[0]] = v[1]            # {idNodo: valore}
+
+        #modo2
+        #self._valori.clear()
+        #for c in self.getNodes():
+            #self._valori[c.constructorId] = sum(len(lst) for lst in c.results.values())
 
         # NODI
         self._nodes = DAO.getAllNodes()  # <-- ADATTA

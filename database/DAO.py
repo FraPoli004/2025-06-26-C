@@ -99,18 +99,19 @@ class DAO():
         return result
 
     @staticmethod
-    def getPeso():
+    def getPeso(ai,af):
         conn = DBConnect.get_connection()
 
         result = []
 
         cursor = conn.cursor(dictionary=True)
-        query = """select distinct c.constructorId as idc, count(distinct r.raceId ) as peso
-                    from results r, constructors c  
-                    where r.constructorId  = c.constructorId 
+        query = """select r.constructorId as idc, count(*) as peso
+                    from results r, races ra
+                    where r.raceId = ra.raceId
+                    and ra.year between %s and %s
                     and r.position is not null
-                    group by c.constructorId """  # <-- ADATTA: valore aggregato per singolo nodo
-        cursor.execute(query)
+                    group by r.constructorId"""  # <-- ADATTA: valore aggregato per singolo nodo
+        cursor.execute(query,(ai,af))
 
         for row in cursor:
             result.append((row["idc"], row["peso"]))
