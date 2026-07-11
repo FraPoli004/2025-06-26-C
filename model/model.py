@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -5,10 +7,13 @@ from database.DAO import DAO
 
 class Model:
     def __init__(self):
+        self._optList = None
+        self._bestScore = None
         self._grafo = nx.Graph()  # <-- nx.DiGraph() se ORIENTATO
         self._nodes = []
         self._idMap = {}
         self._valori = {}
+        self._valoriNull = {}
 
     def getNodes(self):
         return self._grafo.nodes()
@@ -29,7 +34,12 @@ class Model:
         #modo1
         self._valori.clear()
         for v in DAO.getPeso(ai,af):
-            self._valori[v[0]] = v[1]            # {idNodo: valore}
+            self._valori[v[0]] = v[1]
+
+        self._valoriNull.clear()
+        for v in DAO.getPesoNull(ai, af):
+            self._valoriNull[v[0]] = v[1]
+        # {idNodo: valore}
 
         #modo2
         #self._valori.clear()
@@ -68,5 +78,40 @@ class Model:
     def _peso_incidente_max(self, nodo):  # min -> sostituisci max con min (traccia F1-B)
         pesi = [self._grafo.get_edge_data(nodo, v)["weight"]
                 for v in self._grafo.neighbors(nodo)]
-        return max(pesi) if pesi else 0  #
+        return max(pesi) if pesi else 0
+
+    def getSottoinsiemeOttimo(self, soglia, dim):
+        self._bestScore = 0  # <------- float("inf") se MINIMIZZI
+        self._optList = []
+        piu_grande = max(list(nx.connected_components(self._grafo)), key=len)
+        candidati = [n for n in piu_grande
+                     if len(n.results.keys())>=dim]  # <------- PRE-FILTRO intrinseco (se assente: tutti i nodi)
+        self._ricorsione_sub(candidati, soglia, [], 0)
+        return self._optList, self._bestScore
+
+    def _ricorsione_sub(self, candidati, soglia, parziale, index):
+        if len(parziale) == soglia:  # CASO BASE: raggiunti K elementi
+            if self._getScoreSoluzione(parziale) > self._bestScore:  # <------- < se MINIMIZZI
+                self._bestScore = self._getScoreSoluzione(parziale)
+                self._optList = copy.deepcopy(parziale)  # <------- deepcopy: NON togliere
+            return
+        if index >= len(candidati):  # CASO BASE: candidati finiti
+            return
+        if len(candidati) - index < soglia - len(parziale):  # POTATURA: rimasti < mancanti
+            return
+
+        self._ricorsione_sub(candidati, soglia, parziale, index + 1)  # SCELTA A: ESCLUDO candidati[index]
+        parziale.append(candidati[index])  # SCELTA B: INCLUDO candidati[index]
+        self._ricorsione_sub(candidati, soglia, parziale, index + 1)
+        parziale.pop()
+
+    def _getScoreSoluzione(self, listaElems):
+        score = 0
+        for e in listaElems:
+            score+= 1-(len(e.results.values())/len(e.resultsNull.values()))
+        return score
+
+
+
+
 

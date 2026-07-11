@@ -7,7 +7,8 @@ class Constructor:
     nationality : str
     url : str
 
-    results: dict = field(default_factory=dict)  # <-- attributo-dizionario (MAI = {} in una dataclass)
+    results: dict = field(default_factory=dict)
+    resultsNull: dict = field(default_factory=dict)# <-- attributo-dizionario (MAI = {} in una dataclass)
 
     def __hash__(self):
         return self.constructorId  # hash sulla SOLA chiave identificativa

@@ -45,7 +45,38 @@ class Controller:
         self._view.update_page()
 
     def handleCercaTeamSfortunati(self, e):
-        pass
+        self._view._txt_result.controls.clear()
+        k,m = self._view._txtInSoglia.value,self._view._txtInNumDiEdizioni.value
+        if k is None or m is None:
+            self._txt_result.controls.clear()
+            self._txt_result.controls.append(
+                ft.Text("inserire entrambe i valori.", color="red"))
+            self._view.update_page()
+            return
+
+        try:
+            k = int(k)
+            m = int(m)
+        except (ValueError, TypeError):
+            self._view._txt_result.controls.append(
+                ft.Text("Inserire un numero intero valido!", color="red"))
+            self._view.update_page()
+            return
+
+        comb, score = self._model.getSottoinsiemeOttimo(k,m)
+        self._view._txt_result.controls.append(ft.Text(f"Il sottoinsieme ottimo trovato ha score {score} ed è composto da:"))
+
+        for n in comb:
+            self._view._txt_result.controls.append(ft.Text(f"{n}"))
+
+        self._view.update_page()
+
+
+
+
+
+
+
 
     def fillDDs(self):
         valori = self._model.getDDvalue()
